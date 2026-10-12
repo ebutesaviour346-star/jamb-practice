@@ -1,0 +1,14 @@
+addQ("Chemistry", [
+  { q: "What is the percentage by mass of oxygen in water? (H = 1, O = 16)", o: ["11.1%", "50%", "88.9%", "94.1%"], a: "88.9%", e: "Mass of O / mass of H2O x 100 = 16 / 18 x 100 = 88.9%." },
+  { q: "How many moles are in 11 g of carbon dioxide? (C = 12, O = 16)", o: ["0.1", "0.25", "0.5", "4"], a: "0.25", e: "Molar mass of CO2 = 44 g/mol. Moles = 11 / 44 = 0.25." },
+  { q: "What is the mass of 0.5 mol of NaOH? (Na = 23, O = 16, H = 1)", o: ["10 g", "20 g", "40 g", "80 g"], a: "20 g", e: "Molar mass of NaOH = 40 g/mol. Mass = 0.5 x 40 = 20 g." },
+  { q: "4 g of NaOH is dissolved in 500 cm3 of solution. The concentration is (NaOH = 40)", o: ["0.1 mol/dm3", "0.2 mol/dm3", "0.4 mol/dm3", "0.8 mol/dm3"], a: "0.2 mol/dm3", e: "Moles = 4 / 40 = 0.1 mol. Volume = 0.5 dm3. Concentration = 0.1 / 0.5 = 0.2 mol/dm3." },
+  { q: "The maximum number of electrons in the second energy level is", o: ["2", "8", "18", "32"], a: "8", e: "The maximum for each shell is 2n2. For n = 2, that is 2 x 4 = 8." },
+  { q: "The shape of a methane molecule is", o: ["Linear", "Bent", "Tetrahedral", "Trigonal planar"], a: "Tetrahedral", e: "Methane has four bonding pairs and no lone pairs, so the shape is tetrahedral." },
+  { q: "Which of these molecules contains a double covalent bond?", o: ["H2", "O2", "Cl2", "HCl"], a: "O2", e: "In O2, two pairs of electrons are shared, so the bond is a double bond." },
+  { q: "Which of these compounds shows hydrogen bonding?", o: ["CH4", "H2O", "CO2", "N2"], a: "H2O", e: "Hydrogen bonding happens when hydrogen is bonded to a very electronegative atom like oxygen, nitrogen, or fluorine." },
+  { q: "Which of these is NOT a property of metals?", o: ["Good conductor of electricity", "Malleable", "Ductile", "Brittle"], a: "Brittle", e: "Metals are malleable and ductile. Brittle solids break easily when hit." },
+  { q: "Graphite conducts electricity because", o: ["It has free mobile electrons between its layers", "It is a metal", "It contains ions", "It is very hard"], a: "It has free mobile electrons between its layers", e: "Each carbon atom uses only three of its four outer electrons for bonding, leaving one free to carry current." },
+  { q: "The allotrope of carbon used as a dry lubricant is", o: ["Diamond", "Graphite", "Charcoal", "Soot"], a: "Graphite", e: "Graphite has layers that slide easily over each other." },
+  { q: "Which gas relights a glowing splint?", o: ["Hydrogen", "Oxygen", "Nitrogen", "Carbon dioxide"], a: "Oxygen", e: "Oxygen supports burning, so a glowing splint bursts into flame in it." },
+  { q: "Ammonia is collected by upward delivery because it is", o: ["Heavier than air", "Lighter than air and very soluble in water", "Insoluble in water", "Poisonous"], a: "Lighter than air and ver

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JAMB Practice</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f4f8; padding: 20px; }
+    h1 { color: #1a5fb4; }
+    button { display: block; width: 100%; padding: 14px; margin: 10px 0;
+      font-size: 18px; border: none; border-radius: 8px;
+      background: #1a5fb4; color: white; }
+    .locked { background: #777; }
+    .picked { background: #2e7d32; }
+    .correct { background: #2e7d32; }
+    .wrong { background: #c62828; }
+    #timer { font-weight: bold; color: #c62828; }
+    #feedback { font-weight: bold; }
+    #explanation { background: white; padding: 12px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>JAMB Practice</h1>
+  <div id="menu"></div>
+  <div id="test" style="display:none">
+    <p id="timer"></p>
+    <p id="subjectName"></p>
+    <p id="progress"></p>
+    <p id="question"></p>
+    <div id="options"></div>
+    <p id="feedback"></p>
+    <p id="explanation" style="display:none"></p>
+    <button id="nextBtn" style="display:none" onclick="nextQuestion()">Next</button>
+  </div>
+  <div id="result"></div>
+
+  <script>
+    var bank = {};
+    function addQ(subject, arr) {
+      if (!bank[subject]) { bank[subject] = []; }
+      bank[subject] = bank[subject].concat(arr);
+    }
+  </script>
+
+  <script src="English_1.js"></script>
+  <script src="English_2.js"></script>
+  <script src="English_3.js"></script>
+  <script src="English_4.js"></script>
+  <script src="Chemistry_1.js"></script>
+  <script src="Chemistry_2.js"></script>
+  <script src="Chemistry_3.js"></script>
+  <script src="Chemistry_4.js"></script>
+  <script src="Physics_1.js"></script>
+  <script src="Physics_2.js"></script>
+  <script src="Physics_3.js"></script>
+  <script src="Physics_4.js"></script>
+  
+  <script src="Mathematics_1.js"></script>
+  <script src="Mathematics_2.js"></script>
+  <script src="Mathematics_3.js"></script>
+  <script src="Mathematics_4.js"></script>
+  <script src="Biology_1.js"></script>
+  <script src="Biology_2.js"></script>
+  <script src="Biology_3.js"></script>
+  <script src="Biology_4.js"></script>
+
+  <script>
+    function perSubject(name) { return name === "English" ? 60 : 40; }
+    var chosen = [], list = [], scores = {};
+    var current = 0, answered = false, seconds = 0, timerId = null;
+
+    function shuffle(arr) {
+      var a = arr.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+
+    function subjectsAvailable() {
+      var names = [];
+      for (var n in bank) {
+        if (n !== "English" && bank[n].length > 0) { names.push(n); }
+      }
+      return names;
+    }
+
+    function needed() { return Math.min(3, subjectsAvailable().length); }
+
+    function showMenu() {
+      clearInterval(timerId);
+      document.getElementById("test").style.display = "none";
+      document.getElementById("result").innerHTML = "";
+      chosen = [];
+      var menu = document.getElementById("menu");
+      menu.style.display = "block";
+      menu.innerHTML = "";
+      var info = document.createElement("p");
+      info.id = "info";
+      menu.appendChild(info);
+      var eng = document.createElement("button");
+      eng.innerText = "English (compulsory) ✓";
+      eng.className = "locked";
+      menu.appendChild(eng);
+      var others = subjectsAvailable();
+      for (var i = 0; i < others.length; i++) {
+        var b = document.createElement("button");
+        b.innerText = others[i];
+        b.onclick = toggleHandler(others[i], b);
+        menu.appendChild(b);
+      }
+      var go = document.createElement("button");
+      go.id = "startBtn";
+      go.innerText = "Start exam";
+      go.onclick = startExam;
+      menu.appendChild(go);
+      updateInfo();
+    }
+
+    function toggleHandler(name, btn) {
+      return function () {
+        var idx = chosen.indexOf(name);
+        if (idx >= 0) {
+          chosen.splice(idx, 1);
+          btn.className = "";
+        } else if (chosen.length < 3) {
+          chosen.push(name);
+          btn.className = "picked";
+        }
+        updateInfo();
+      };
+    }
+
+    function updateInfo() {
+      document.getElementById("info").innerText =
+        "English is compulsory. Choose " + needed() + " more subject(s): " +
+        chosen.length + " / " + needed();
+      document.getElementById("startBtn").style.opacity =
+        (chosen.length === needed()) ? "1" : "0.4";
+    }
+
+    function startExam() {
+      if (!bank["English"] || chosen.length !== needed()) { return; }
+      var subjects = ["English"].concat(chosen);
+      list = [];
+scores = {};
+for (var i = 0; i < subjects.length; i++) {
+  scores[subjects[i]] = 0;
+  var howMany = (subjects[i] === "English") ? 60 : 40;
+  var picked = shuffle(bank[subjects[i]]).slice(0, howMany);
+  for (var j = 0; j < picked.length; j++) {
+    list.push({ subject: subjects[i], item: picked[j] });
+  }
+}
+        current = 0;
+      seconds = 7200;
+      document.getElementById("menu").style.display = "none";
+      document.getElementById("test").style.display = "block";
+      clearInterval(timerId);
+      timerId = setInterval(tick, 1000);
+      updateTimer();
+      showQuestion();
+    }
+
+    function tick() {
+      seconds--;
+      updateTimer();
+      if (seconds <= 0) { finish(); }
+    }
+
+    function updateTimer() {
+      var m = Math.floor(seconds / 60);
+      var s = seconds % 60;
+      document.getElementById("timer").innerText =
+        "Time left: " + m + ":" + (s < 10 ? "0" : "") + s;
+    }
+
+    function showQuestion() {
+      var entry = list[current];
+      var item = entry.item;
+      answered = false;
+      document.getElementById("subjectName").innerText = entry.subject;
+      document.getElementById("progress").innerText =
+        "Question " + (current + 1) + " of " + list.length;
+      document.getElementById("question").innerText = item.q;
+      document.getElementById("feedback").innerText = "";
+      document.getElementById("explanation").style.display = "none";
+      document.getElementById("nextBtn").style.display = "none";
+      var box = document.getElementById("options");
+      box.innerHTML = "";
+      var opts = shuffle(item.o);
+      for (var i = 0; i < opts.length; i++) {
+        var b = document.createElement("button");
+        b.innerText = opts[i];
+        b.onclick = makeHandler(opts[i]);
+        box.appendChild(b);
+      }
+    }
+
+    function makeHandler(choice) {
+      return function () { pick(choice); };
+    }
+
+    function pick(choice) {
+      if (answered) { return; }
+      answered = true;
+      var entry = list[current];
+      var item = entry.item;
+      var buttons = document.getElementById("options").children;
+      for (var i = 0; i < buttons.length; i++) {
+        if (buttons[i].innerText === item.a) {
+          buttons[i].className = "correct";
+        } else if (buttons[i].innerText === choice) {
+          buttons[i].className = "wrong";
+        }
+      }
+      var fb = document.getElementById("feedback");
+      if (choice === item.a) {
+        scores[entry.subject]++;
+        fb.innerText = "Correct ✅";
+        fb.style.color = "green";
+      } else {
+        fb.innerText = "Wrong ❌ Correct answer: " + item.a;
+        fb.style.color = "red";
+      }
+      var exp = document.getElementById("explanation");
+      exp.innerText = item.e;
+      exp.style.display = "block";
+      var nb = document.getElementById("nextBtn");
+      nb.innerText = (current === list.length - 1) ? "See my score" : "Next question";
+      nb.style.display = "block";
+    }
+
+    function nextQuestion() {
+      current++;
+      if (current < list.length) { showQuestion(); }
+      else { finish(); }
+    }
+
+    function finish() {
+      clearInterval(timerId);
+      document.getElementById("test").style.display = "none";
+      var total = 0, html = "<h2>Finished!</h2>";
+      for (var name in scores) {
+        var count = 0;
+        for (var k = 0; k < list.length; k++) {
+          if (list[k].subject === name) { count++; }
+        }
+        html += "<p>" + name + ": " + scores[name] + " / " + count + "</p>";
+        total += scores[name];
+      }
+      html += "<p><b>Total: " + total + " / " + list.length + "</b></p>";
+      html += "<button onclick='showMenu()'>Back to subjects</button>";
+      document.getElementById("result").innerHTML = html;
+    }
+
+    showMenu();
+  </script>
+</body>
+</html>
