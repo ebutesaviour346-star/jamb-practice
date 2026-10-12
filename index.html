@@ -1,37 +1,88 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>JAMB Practice</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f4f8; padding: 20px; }
-    h1 { color: #1a5fb4; }
-    button { display: block; width: 100%; padding: 14px; margin: 10px 0;
-      font-size: 18px; border: none; border-radius: 8px;
-      background: #1a5fb4; color: white; }
+    body { font-family: Arial, sans-serif; background: #f0f4f8; margin: 0; padding: 16px; color: #111; }
+    h1 { color: #1a5fb4; margin: 8px 0 12px; }
+    button { font-size: 16px; border: none; border-radius: 8px; background: #1a5fb4; color: #fff; padding: 12px; }
+    .full { display: block; width: 100%; margin: 8px 0; font-size: 18px; padding: 14px; }
     .locked { background: #777; }
     .picked { background: #2e7d32; }
-    .correct { background: #2e7d32; }
-    .wrong { background: #c62828; }
-    #timer { font-weight: bold; color: #c62828; }
-    #feedback { font-weight: bold; }
-    #explanation { background: white; padding: 12px; border-radius: 8px; }
+    .grey { background: #777; }
+    .orange { background: #ef6c00; }
+    #topbar { position: sticky; top: 0; background: #f0f4f8; padding: 6px 0; z-index: 5; }
+    .row { display: flex; gap: 8px; align-items: center; }
+    #timer { flex: 1; text-align: center; font-weight: bold; color: #fff; background: #c62828; border-radius: 20px; padding: 10px; }
+    #tabs { display: flex; gap: 6px; overflow-x: auto; margin: 8px 0; }
+    .tab { background: #dde6f0; color: #1a5fb4; white-space: nowrap; padding: 10px 14px; }
+    .tabOn { background: #1a5fb4; color: #fff; }
+    #passage { background: #fff; padding: 12px; border-radius: 8px; margin: 8px 0; white-space: pre-wrap; }
+    #qtext { font-size: 19px; margin: 12px 0; }
+    .opt { display: block; width: 100%; text-align: left; margin: 8px 0; font-size: 18px; padding: 14px; background: #fff; color: #111; border: 2px solid #1a5fb4; }
+    .optOn { background: #1a5fb4; color: #fff; }
+    .modal { display: none; position: fixed; left: 0; right: 0; bottom: 0; top: 0; background: rgba(0,0,0,0.6); z-index: 10; padding: 16px; overflow-y: auto; }
+    .box { background: #fff; border-radius: 12px; padding: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 10px; }
+    .num { background: #ddd; color: #111; padding: 12px 0; }
+    .numDone { background: #2e7d32; color: #fff; }
+    .numFlag { border: 3px solid #ef6c00; }
+    .numNow { outline: 3px solid #1a5fb4; }
+    .calcBtns { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+    #calcScreen { background: #eee; padding: 12px; font-size: 24px; text-align: right; border-radius: 8px; margin-bottom: 8px; min-height: 30px; }
+    .rev { background: #fff; border-radius: 8px; padding: 12px; margin: 10px 0; }
+    .good { color: #2e7d32; font-weight: bold; }
+    .bad { color: #c62828; font-weight: bold; }
   </style>
 </head>
 <body>
   <h1>JAMB Practice</h1>
   <div id="menu"></div>
-  <div id="test" style="display:none">
-    <p id="timer"></p>
-    <p id="subjectName"></p>
-    <p id="progress"></p>
-    <p id="question"></p>
+
+  <div id="exam" style="display:none">
+    <div id="topbar">
+      <div class="row">
+        <div id="timer"></div>
+        <button id="flagBtn" onclick="toggleFlag()">🔖</button>
+        <button onclick="openCalc()">🧮</button>
+        <button onclick="openPalette()">☰</button>
+      </div>
+    </div>
+    <div id="tabs"></div>
+    <div class="row">
+      <b id="progress" style="flex:1"></b>
+      <button onclick="speak()">🔊 Listen</button>
+    </div>
+    <div id="passage" style="display:none"></div>
+    <p id="qtext"></p>
     <div id="options"></div>
-    <p id="feedback"></p>
-    <p id="explanation" style="display:none"></p>
-    <button id="nextBtn" style="display:none" onclick="nextQuestion()">Next</button>
+    <div class="row">
+      <button style="flex:1" onclick="move(-1)">Previous</button>
+      <button style="flex:1" onclick="move(1)">Next</button>
+    </div>
+    <p id="answered"></p>
+    <button class="full orange" onclick="trySubmit()">Submit</button>
   </div>
+
   <div id="result"></div>
+
+  <div id="paletteModal" class="modal">
+    <div class="box">
+      <p id="paletteTitle"></p>
+      <div id="paletteGrid" class="grid"></div>
+      <button class="full" onclick="closeModals()">Close</button>
+    </div>
+  </div>
+
+  <div id="calcModal" class="modal">
+    <div class="box">
+      <div id="calcScreen"></div>
+      <div id="calcBtns" class="calcBtns"></div>
+      <button class="full grey" onclick="closeModals()">Close</button>
+    </div>
+  </div>
 
   <script>
     var bank = {};
@@ -53,7 +104,6 @@
   <script src="Physics_2.js"></script>
   <script src="Physics_3.js"></script>
   <script src="Physics_4.js"></script>
-  
   <script src="Mathematics_1.js"></script>
   <script src="Mathematics_2.js"></script>
   <script src="Mathematics_3.js"></script>
@@ -64,9 +114,14 @@
   <script src="Biology_4.js"></script>
 
   <script>
-    function perSubject(name) { return name === "English" ? 60 : 40; }
-    var chosen = [], list = [], scores = {};
-    var current = 0, answered = false, seconds = 0, timerId = null;
+    var FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfA9U0gUmNmpyc-0HhJiJ7TIHdi8ElHNyrWYm0So_ryRmt5aA/formResponse";
+    var chosen = [], savedName = "", mode = "full";
+    var subjects = [], qs = {}, pos = {}, scores = {}, cur = 0;
+    var seconds = 0, timerId = null, finished = false, calcText = "";
+
+    function esc(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
 
     function shuffle(arr) {
       var a = arr.slice();
@@ -89,8 +144,9 @@
 
     function showMenu() {
       clearInterval(timerId);
-      document.getElementById("test").style.display = "none";
+      document.getElementById("exam").style.display = "none";
       document.getElementById("result").innerHTML = "";
+      closeModals();
       chosen = [];
       var menu = document.getElementById("menu");
       menu.style.display = "block";
@@ -98,19 +154,33 @@
       var info = document.createElement("p");
       info.id = "info";
       menu.appendChild(info);
+      var nameBox = document.createElement("input");
+      nameBox.id = "studentName";
+      nameBox.placeholder = "Your name (your score will be recorded)";
+      nameBox.value = savedName;
+      nameBox.style.cssText = "width:100%;padding:12px;font-size:18px;margin:10px 0;box-sizing:border-box;";
+      menu.appendChild(nameBox);
+      var sel = document.createElement("select");
+      sel.id = "modeSel";
+      sel.style.cssText = "width:100%;padding:12px;font-size:16px;margin:6px 0 12px;box-sizing:border-box;";
+      sel.innerHTML = '<option value="full">Full JAMB exam: 180 questions, 2 hours</option><option value="quick">Quick practice: 20 per subject, 40 minutes</option>';
+      sel.value = mode;
+      menu.appendChild(sel);
       var eng = document.createElement("button");
       eng.innerText = "English (compulsory) ✓";
-      eng.className = "locked";
+      eng.className = "full locked";
       menu.appendChild(eng);
       var others = subjectsAvailable();
       for (var i = 0; i < others.length; i++) {
         var b = document.createElement("button");
         b.innerText = others[i];
+        b.className = "full";
         b.onclick = toggleHandler(others[i], b);
         menu.appendChild(b);
       }
       var go = document.createElement("button");
       go.id = "startBtn";
+      go.className = "full orange";
       go.innerText = "Start exam";
       go.onclick = startExam;
       menu.appendChild(go);
@@ -122,10 +192,10 @@
         var idx = chosen.indexOf(name);
         if (idx >= 0) {
           chosen.splice(idx, 1);
-          btn.className = "";
+          btn.className = "full";
         } else if (chosen.length < 3) {
           chosen.push(name);
-          btn.className = "picked";
+          btn.className = "full picked";
         }
         updateInfo();
       };
@@ -141,24 +211,31 @@
 
     function startExam() {
       if (!bank["English"] || chosen.length !== needed()) { return; }
-      var subjects = ["English"].concat(chosen);
-      list = [];
-scores = {};
-for (var i = 0; i < subjects.length; i++) {
-  scores[subjects[i]] = 0;
-  var howMany = (subjects[i] === "English") ? 60 : 40;
-  var picked = shuffle(bank[subjects[i]]).slice(0, howMany);
-  for (var j = 0; j < picked.length; j++) {
-    list.push({ subject: subjects[i], item: picked[j] });
-  }
-}
-        current = 0;
-      seconds = 7200;
+      savedName = document.getElementById("studentName").value.trim();
+      if (savedName === "") { alert("Please type your name first."); return; }
+      mode = document.getElementById("modeSel").value;
+      subjects = ["English"].concat(chosen);
+      qs = {};
+      pos = {};
+      for (var i = 0; i < subjects.length; i++) {
+        var name = subjects[i];
+        var howMany = (mode === "full") ? (name === "English" ? 60 : 40) : 20;
+        var picked = shuffle(bank[name]).slice(0, howMany);
+        qs[name] = [];
+        for (var j = 0; j < picked.length; j++) {
+          qs[name].push({ item: picked[j], opts: shuffle(picked[j].o), choice: null, flag: false });
+        }
+        pos[name] = 0;
+      }
+      cur = 0;
+      finished = false;
+      seconds = (mode === "full") ? 7200 : 2400;
       document.getElementById("menu").style.display = "none";
-      document.getElementById("test").style.display = "block";
+      document.getElementById("exam").style.display = "block";
       clearInterval(timerId);
       timerId = setInterval(tick, 1000);
       updateTimer();
+      renderTabs();
       showQuestion();
     }
 
@@ -168,90 +245,261 @@ for (var i = 0; i < subjects.length; i++) {
       if (seconds <= 0) { finish(); }
     }
 
+    function pad(n) { return (n < 10 ? "0" : "") + n; }
+
     function updateTimer() {
-      var m = Math.floor(seconds / 60);
-      var s = seconds % 60;
-      document.getElementById("timer").innerText =
-        "Time left: " + m + ":" + (s < 10 ? "0" : "") + s;
+      var s = Math.max(seconds, 0);
+      var h = Math.floor(s / 3600);
+      var m = Math.floor((s % 3600) / 60);
+      document.getElementById("timer").innerText = pad(h) + ":" + pad(m) + ":" + pad(s % 60);
     }
 
-    function showQuestion() {
-      var entry = list[current];
-      var item = entry.item;
-      answered = false;
-      document.getElementById("subjectName").innerText = entry.subject;
-      document.getElementById("progress").innerText =
-        "Question " + (current + 1) + " of " + list.length;
-      document.getElementById("question").innerText = item.q;
-      document.getElementById("feedback").innerText = "";
-      document.getElementById("explanation").style.display = "none";
-      document.getElementById("nextBtn").style.display = "none";
-      var box = document.getElementById("options");
+    function renderTabs() {
+      var box = document.getElementById("tabs");
       box.innerHTML = "";
-      var opts = shuffle(item.o);
-      for (var i = 0; i < opts.length; i++) {
+      for (var i = 0; i < subjects.length; i++) {
         var b = document.createElement("button");
-        b.innerText = opts[i];
-        b.onclick = makeHandler(opts[i]);
+        b.className = "tab" + (i === cur ? " tabOn" : "");
+        b.innerText = subjects[i];
+        b.onclick = tabHandler(i);
         box.appendChild(b);
       }
     }
 
-    function makeHandler(choice) {
-      return function () { pick(choice); };
+    function tabHandler(i) {
+      return function () { cur = i; renderTabs(); showQuestion(); window.scrollTo(0, 0); };
     }
 
-    function pick(choice) {
-      if (answered) { return; }
-      answered = true;
-      var entry = list[current];
-      var item = entry.item;
-      var buttons = document.getElementById("options").children;
-      for (var i = 0; i < buttons.length; i++) {
-        if (buttons[i].innerText === item.a) {
-          buttons[i].className = "correct";
-        } else if (buttons[i].innerText === choice) {
-          buttons[i].className = "wrong";
-        }
+    function countAnswered(name) {
+      var n = 0;
+      for (var k = 0; k < qs[name].length; k++) {
+        if (qs[name][k].choice !== null) { n++; }
       }
-      var fb = document.getElementById("feedback");
-      if (choice === item.a) {
-        scores[entry.subject]++;
-        fb.innerText = "Correct ✅";
-        fb.style.color = "green";
+      return n;
+    }
+
+    function showQuestion() {
+      stopSpeak();
+      var name = subjects[cur];
+      var list = qs[name];
+      var e = list[pos[name]];
+      var item = e.item;
+      document.getElementById("progress").innerText = "Question " + (pos[name] + 1) + "/" + list.length;
+      var ps = document.getElementById("passage");
+      if (item.p) { ps.innerText = item.p; ps.style.display = "block"; }
+      else { ps.style.display = "none"; }
+      document.getElementById("qtext").innerText = item.q;
+      var box = document.getElementById("options");
+      box.innerHTML = "";
+      for (var i = 0; i < e.opts.length; i++) {
+        var b = document.createElement("button");
+        b.className = "opt" + (e.choice === e.opts[i] ? " optOn" : "");
+        b.innerText = String.fromCharCode(65 + i) + ".  " + e.opts[i];
+        b.onclick = choiceHandler(e.opts[i]);
+        box.appendChild(b);
+      }
+      document.getElementById("flagBtn").className = e.flag ? "orange" : "";
+      document.getElementById("answered").innerText =
+        "Answered in " + name + ": " + countAnswered(name) + "/" + list.length;
+    }
+
+    function choiceHandler(c) {
+      return function () {
+        var name = subjects[cur];
+        var e = qs[name][pos[name]];
+        e.choice = (e.choice === c) ? null : c;
+        showQuestion();
+      };
+    }
+
+    function move(step) {
+      var name = subjects[cur];
+      var n = pos[name] + step;
+      if (n >= 0 && n < qs[name].length) {
+        pos[name] = n;
+      } else if (step > 0 && cur < subjects.length - 1) {
+        cur++;
+        renderTabs();
+      } else if (step < 0 && cur > 0) {
+        cur--;
+        renderTabs();
       } else {
-        fb.innerText = "Wrong ❌ Correct answer: " + item.a;
-        fb.style.color = "red";
+        return;
       }
-      var exp = document.getElementById("explanation");
-      exp.innerText = item.e;
-      exp.style.display = "block";
-      var nb = document.getElementById("nextBtn");
-      nb.innerText = (current === list.length - 1) ? "See my score" : "Next question";
-      nb.style.display = "block";
+      showQuestion();
+      window.scrollTo(0, 0);
     }
 
-    function nextQuestion() {
-      current++;
-      if (current < list.length) { showQuestion(); }
-      else { finish(); }
+    function toggleFlag() {
+      var name = subjects[cur];
+      var e = qs[name][pos[name]];
+      e.flag = !e.flag;
+      showQuestion();
+    }
+
+    function openPalette() {
+      var name = subjects[cur];
+      var list = qs[name];
+      document.getElementById("paletteTitle").innerText =
+        name + " - Attempted: " + countAnswered(name) + "/" + list.length;
+      var grid = document.getElementById("paletteGrid");
+      grid.innerHTML = "";
+      for (var i = 0; i < list.length; i++) {
+        var b = document.createElement("button");
+        var cls = "num";
+        if (list[i].choice !== null) { cls += " numDone"; }
+        if (list[i].flag) { cls += " numFlag"; }
+        if (i === pos[name]) { cls += " numNow"; }
+        b.className = cls;
+        b.innerText = i + 1;
+        b.onclick = jumpHandler(i);
+        grid.appendChild(b);
+      }
+      document.getElementById("paletteModal").style.display = "block";
+    }
+
+    function jumpHandler(i) {
+      return function () {
+        pos[subjects[cur]] = i;
+        closeModals();
+        showQuestion();
+        window.scrollTo(0, 0);
+      };
+    }
+
+    function closeModals() {
+      document.getElementById("paletteModal").style.display = "none";
+      document.getElementById("calcModal").style.display = "none";
+    }
+
+    function openCalc() {
+      var keys = ["7","8","9","/","4","5","6","*","1","2","3","-","0",".","=","+","C","(",")","DEL"];
+      var box = document.getElementById("calcBtns");
+      box.innerHTML = "";
+      for (var i = 0; i < keys.length; i++) {
+        var b = document.createElement("button");
+        b.className = "num";
+        b.innerText = keys[i];
+        b.onclick = calcHandler(keys[i]);
+        box.appendChild(b);
+      }
+      document.getElementById("calcScreen").innerText = calcText;
+      document.getElementById("calcModal").style.display = "block";
+    }
+
+    function calcHandler(k) {
+      return function () { calcPress(k); };
+    }
+
+    function calcPress(k) {
+      if (k === "C") {
+        calcText = "";
+      } else if (k === "DEL") {
+        calcText = calcText.slice(0, -1);
+      } else if (k === "=") {
+        if (calcText === "") { return; }
+        try {
+          var r = Function('"use strict"; return (' + calcText + ')')();
+          calcText = String(Math.round(r * 1000000000) / 1000000000);
+        } catch (err) {
+          calcText = "Error";
+        }
+      } else {
+        if (calcText === "Error") { calcText = ""; }
+        calcText += k;
+      }
+      document.getElementById("calcScreen").innerText = calcText;
+    }
+
+    function speak() {
+      if (!window.speechSynthesis) { alert("Listening is not supported on this phone."); return; }
+      stopSpeak();
+      var name = subjects[cur];
+      var e = qs[name][pos[name]];
+      var text = (e.item.p ? e.item.p + ". " : "") + e.item.q + ". ";
+      for (var i = 0; i < e.opts.length; i++) {
+        text += "Option " + String.fromCharCode(65 + i) + ". " + e.opts[i] + ". ";
+      }
+      window.speechSynthesis.speak(new SpeechSynthesisUtterance(text));
+    }
+
+    function stopSpeak() {
+      if (window.speechSynthesis) { window.speechSynthesis.cancel(); }
+    }
+
+    function trySubmit() {
+      var left = 0;
+      for (var i = 0; i < subjects.length; i++) {
+        left += qs[subjects[i]].length - countAnswered(subjects[i]);
+      }
+      var msg = (left > 0)
+        ? "You still have " + left + " unanswered question(s). Submit anyway?"
+        : "Submit your exam now?";
+      if (confirm(msg)) { finish(); }
     }
 
     function finish() {
+      if (finished) { return; }
+      finished = true;
       clearInterval(timerId);
-      document.getElementById("test").style.display = "none";
-      var total = 0, html = "<h2>Finished!</h2>";
-      for (var name in scores) {
-        var count = 0;
-        for (var k = 0; k < list.length; k++) {
-          if (list[k].subject === name) { count++; }
+      stopSpeak();
+      closeModals();
+      document.getElementById("exam").style.display = "none";
+      scores = {};
+      var total = 0, count = 0, html = "<h2>Finished!</h2>";
+      for (var i = 0; i < subjects.length; i++) {
+        var name = subjects[i];
+        var right = 0;
+        for (var k = 0; k < qs[name].length; k++) {
+          if (qs[name][k].choice === qs[name][k].item.a) { right++; }
         }
-        html += "<p>" + name + ": " + scores[name] + " / " + count + "</p>";
-        total += scores[name];
+        scores[name] = right;
+        total += right;
+        count += qs[name].length;
+        html += "<p>" + esc(name) + ": " + right + " / " + qs[name].length + "</p>";
       }
-      html += "<p><b>Total: " + total + " / " + list.length + "</b></p>";
-      html += "<button onclick='showMenu()'>Back to subjects</button>";
+      html += "<p><b>Total: " + total + " / " + count + "</b></p>";
+      html += "<button class='full' onclick='showReview()'>Review answers</button>";
+      html += "<button class='full grey' onclick='showMenu()'>Back to subjects</button>";
       document.getElementById("result").innerHTML = html;
+      window.scrollTo(0, 0);
+      sendResult(total, count);
+    }
+
+    function showReview() {
+      var html = "<h2>Review</h2>";
+      for (var i = 0; i < subjects.length; i++) {
+        var name = subjects[i];
+        html += "<h3>" + esc(name) + "</h3>";
+        for (var k = 0; k < qs[name].length; k++) {
+          var e = qs[name][k];
+          var ok = (e.choice === e.item.a);
+          html += "<div class='rev'>";
+          html += "<p><b>" + (k + 1) + ".</b> " + esc(e.item.q) + "</p>";
+          html += "<p class='" + (ok ? "good" : "bad") + "'>Your answer: " +
+            (e.choice === null ? "(none)" : esc(e.choice)) + "</p>";
+          if (!ok) { html += "<p class='good'>Correct answer: " + esc(e.item.a) + "</p>"; }
+          html += "<p>" + esc(e.item.e) + "</p></div>";
+        }
+      }
+      html += "<button class='full grey' onclick='showMenu()'>Back to subjects</button>";
+      document.getElementById("result").innerHTML = html;
+      window.scrollTo(0, 0);
+    }
+
+    function sendResult(total, count) {
+      var parts = [];
+      for (var i = 0; i < subjects.length; i++) {
+        parts.push(subjects[i] + " " + scores[subjects[i]]);
+      }
+      var data = new URLSearchParams();
+      data.append("entry.1459744926", savedName);
+      data.append("entry.1364140056", subjects.join(", "));
+      data.append("entry.160759990", parts.join(", "));
+      data.append("entry.671808982", total + " / " + count);
+      try {
+        fetch(FORM_URL, { method: "POST", mode: "no-cors", body: data });
+      } catch (err) {}
     }
 
     showMenu();
