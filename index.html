@@ -2,7 +2,10 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>JAMB Practice</title>
+  <title>StudyDrill</title>
+  <link rel="manifest" href="Manifest.json">
+<meta name="theme-color" content="#1a5fb4">
+<link rel="icon" href="Icon.svg" type="image/svg+xml">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: Arial, sans-serif; background: #f0f4f8; margin: 0; padding: 16px; color: #111; }
@@ -35,10 +38,22 @@
     .rev { background: #fff; border-radius: 8px; padding: 12px; margin: 10px 0; }
     .good { color: #2e7d32; font-weight: bold; }
     .bad { color: #c62828; font-weight: bold; }
+#splash { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #1a5fb4; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; }
+#splash h2 { margin: 16px 0 4px; font-size: 34px; }
+#splash p { margin: 0; font-size: 16px; opacity: 0.85; }
   </style>
 </head>
 <body>
-  <h1>JAMB Practice</h1>
+  <div id="splash">
+  <svg width="140" height="140" viewBox="0 0 140 140">
+    <circle cx="70" cy="70" r="64" fill="#ef6c00"/>
+    <circle cx="70" cy="70" r="64" fill="none" stroke="#fff" stroke-width="4"/>
+    <text x="70" y="88" font-size="56" font-weight="bold" fill="#fff" text-anchor="middle" font-family="Arial, sans-serif">SD</text>
+  </svg>
+  <h2>StudyDrill</h2>
+  <p>Practice. Study. Pass.</p>
+  </div>
+  <h1>StudyDrill</h1>
   <div id="menu"></div>
 
   <div id="exam" style="display:none">
@@ -503,6 +518,8 @@
     }
 
     showMenu();
+setTimeout(function () { document.getElementById("splash").style.display = "none"; }, 2000);
+if ("serviceWorker" in navigator) { navigator.serviceWorker.register("Sw.js"); }
   </script>
 </body>
 </html>
