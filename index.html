@@ -41,6 +41,18 @@
 #splash { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #1a5fb4; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; text-align: center; }
 #splash h2 { margin: 16px 0 4px; font-size: 34px; }
 #splash p { margin: 0; font-size: 16px; opacity: 0.85; }
+ .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .tile { border-radius: 16px; padding: 16px 8px; min-height: 150px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; }
+    .tile .ico { font-size: 42px; margin-bottom: 8px; }
+    .tile small { display: block; font-size: 13px; font-weight: normal; margin-top: 4px; }
+    .t1 { background: #b4b9e8; color: #2a3a8c; }
+    .t2 { background: #a9c5c0; color: #1f4f4a; }
+    .t3 { background: #e9a8c3; color: #7a1f4a; }
+    .t4 { background: #c9c3a8; color: #4d4416; }
+    .t5 { background: #c9a0ee; color: #4a1a7a; }
+    .t6 { background: #f0c27a; color: #7a4a05; }
+ .subjGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+    .subjGrid .full { margin: 0; font-size: 16px; padding: 16px 6px; } 
   </style>
 </head>
 <body>
@@ -173,7 +185,7 @@
 
     function needed() { return Math.min(3, subjectsAvailable().length); }
 
-    function showMenu() {
+    function showSetup() {
       clearInterval(timerId);
       document.getElementById("exam").style.display = "none";
       document.getElementById("result").innerHTML = "";
@@ -197,24 +209,33 @@
       sel.innerHTML = '<option value="full">Full JAMB exam: 180 questions, 2 hours</option><option value="quick">Quick practice: 20 per subject, 40 minutes</option>';
       sel.value = mode;
       menu.appendChild(sel);
+      var grid = document.createElement("div");
+      grid.className = "subjGrid";
       var eng = document.createElement("button");
       eng.innerText = "English (compulsory) ✓";
       eng.className = "full locked";
-      menu.appendChild(eng);
+      eng.style.gridColumn = "1 / span 2";
+      grid.appendChild(eng);
       var others = subjectsAvailable();
       for (var i = 0; i < others.length; i++) {
         var b = document.createElement("button");
         b.innerText = others[i];
         b.className = "full";
         b.onclick = toggleHandler(others[i], b);
-        menu.appendChild(b);
+        grid.appendChild(b);
       }
+      menu.appendChild(grid);
       var go = document.createElement("button");
       go.id = "startBtn";
       go.className = "full orange";
       go.innerText = "Start exam";
       go.onclick = startExam;
       menu.appendChild(go);
+      var home = document.createElement("button");
+      home.className = "full grey";
+      home.innerText = "Back to Home";
+      home.onclick = showMenu;
+      menu.appendChild(home);
       updateInfo();
     }
 
@@ -484,10 +505,11 @@
         for (var k = 0; k < qs[name].length; k++) {
           if (qs[name][k].choice === qs[name][k].item.a) { right++; }
         }
-        scores[name] = right;
-        total += right;
-        count += qs[name].length;
-        html += "<p>" + esc(name) + ": " + right + " / " + qs[name].length + "</p>";
+        var mark = Math.round((right / qs[name].length) * 100);
+        scores[name] = mark;
+        total += mark;
+        count += 100;
+        html += "<p>" + esc(name) + ": " + mark + " / 100 (" + right + " of " + qs[name].length + " correct)</p>";
       }
       html += "<p><b>Total: " + total + " / " + count + "</b></p>";
       html += "<button class='full' onclick='showReview()'>Review answers</button>";
@@ -495,6 +517,7 @@
       document.getElementById("result").innerHTML = html;
       window.scrollTo(0, 0);
       sendResult(total, count);
+      saveHistory(total, count);
     }
 
     function showReview() {
@@ -533,6 +556,107 @@
       } catch (err) {}
     }
 
+    function loadJSON(key, fallback) {
+      try {
+        var v = JSON.parse(localStorage.getItem(key));
+        return v || fallback;
+      } catch (err) {
+        return fallback;
+      }
+    }
+
+    function saveHistory(total, count) {
+      var list = loadJSON("sd_history", []);
+      var marks = [];
+      for (var i = 0; i < subjects.length; i++) {
+        marks.push(subjects[i] + " " + scores[subjects[i]]);
+      }
+      list.unshift({ date: new Date().toLocaleString(), mode: mode, marks: marks.join(", "), total: total, count: count });
+      localStorage.setItem("sd_history", JSON.stringify(list.slice(0, 50)));
+      var p = loadJSON("sd_profile", {});
+      p.name = savedName;
+      localStorage.setItem("sd_profile", JSON.stringify(p));
+    }
+
+    function showHistory() {
+      var list = loadJSON("sd_history", []);
+      document.getElementById("menu").style.display = "none";
+      var html = "<h2>My Results</h2>";
+      if (list.length === 0) {
+        html += "<p>No results yet. Take a test first.</p>";
+      } else {
+        var best = 0;
+        for (var i = 0; i < list.length; i++) {
+          if (list[i].total > best) { best = list[i].total; }
+        }
+        html += "<p><b>Tests taken: " + list.length + " | Best score: " + best + " / 400</b></p>";
+        for (var k = 0; k < list.length; k++) {
+          var r = list[k];
+          html += "<div class='rev'>";
+          html += "<p><b>" + esc(r.total) + " / " + esc(r.count) + "</b> (" + (r.mode === "full" ? "Full exam" : "Quick practice") + ")</p>";
+          html += "<p>" + esc(r.marks) + "</p>";
+          html += "<p>" + esc(r.date) + "</p></div>";
+        }
+      }
+      html += "<button class='full grey' onclick='showMenu()'>Back</button>";
+      document.getElementById("result").innerHTML = html;
+    }
+
+    function showProfile() {
+      var p = loadJSON("sd_profile", {});
+      document.getElementById("menu").style.display = "none";
+      var box = "width:100%;padding:12px;font-size:18px;margin:6px 0;box-sizing:border-box;";
+      var html = "<h2>My Profile</h2>";
+      html += "<input id='pName' placeholder='Your name' style='" + box + "'>";
+      html += "<input id='pSchool' placeholder='Your school (optional)' style='" + box + "'>";
+      html += "<button class='full' onclick='saveProfile()'>Save</button>";
+      html += "<button class='full grey' onclick='showMenu()'>Back</button>";
+      document.getElementById("result").innerHTML = html;
+      document.getElementById("pName").value = p.name || "";
+      document.getElementById("pSchool").value = p.school || "";
+    }
+
+    function saveProfile() {
+      var n = document.getElementById("pName").value.trim();
+      var s = document.getElementById("pSchool").value.trim();
+      localStorage.setItem("sd_profile", JSON.stringify({ name: n, school: s }));
+      savedName = n;
+      showMenu();
+    }
+
+    var savedProfile = loadJSON("sd_profile", {});
+    savedName = savedProfile.name || "";
+    function showMenu() {
+      clearInterval(timerId);
+      document.getElementById("exam").style.display = "none";
+      document.getElementById("result").innerHTML = "";
+      closeModals();
+      var menu = document.getElementById("menu");
+      menu.style.display = "block";
+      menu.innerHTML = "";
+      var tiles = [
+        { cls: "t1", icon: "🚀", title: "Practice for JAMB", sub: "Full exam or quick practice", go: showSetup },
+        { cls: "t2", icon: "📄", title: "My Results", sub: "Track your scores", go: showHistory },
+        { cls: "t3", icon: "👤", title: "My Profile", sub: "Your name and school", go: showProfile },
+        { cls: "t4", icon: "📘", title: "Syllabus", sub: "Coming soon", go: soon },
+        { cls: "t5", icon: "📝", title: "Study Notes", sub: "Coming soon", go: soon },
+        { cls: "t6", icon: "🏆", title: "Leaderboard", sub: "Coming soon", go: soon }
+      ];
+      var grid = document.createElement("div");
+      grid.className = "tiles";
+      for (var i = 0; i < tiles.length; i++) {
+        var b = document.createElement("button");
+        b.className = "tile " + tiles[i].cls;
+        b.innerHTML = "<span class='ico'>" + tiles[i].icon + "</span>" + tiles[i].title + "<small>" + tiles[i].sub + "</small>";
+        b.onclick = tiles[i].go;
+        grid.appendChild(b);
+      }
+      menu.appendChild(grid);
+    }
+
+    function soon() {
+      alert("Coming soon. We are still building this.");
+    }
     showMenu();
 setTimeout(function () { document.getElementById("splash").style.display = "none"; }, 2000);
 if ("serviceWorker" in navigator) { navigator.serviceWorker.register("Sw.js"); }
