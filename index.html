@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html>
 <head>
   <meta charset="UTF-8">
   <title>StudyDrill</title>
@@ -55,8 +54,7 @@
     .subjGrid .full { margin: 0; font-size: 16px; padding: 16px 6px; } 
   </style>
 </head>
-<body>
-  <div id="splash">
+<div id="splash">
   <svg width="140" height="140" viewBox="0 0 140 140">
     <circle cx="70" cy="70" r="64" fill="#ef6c00"/>
     <circle cx="70" cy="70" r="64" fill="none" stroke="#fff" stroke-width="4"/>
@@ -638,9 +636,10 @@
         { cls: "t1", icon: "🚀", title: "Practice for JAMB", sub: "Full exam or quick practice", go: showSetup },
         { cls: "t2", icon: "📄", title: "My Results", sub: "Track your scores", go: showHistory },
         { cls: "t3", icon: "👤", title: "My Profile", sub: "Your name and school", go: showProfile },
-        { cls: "t4", icon: "📘", title: "Syllabus", sub: "Coming soon", go: soon },
+        { cls: "t4", icon: "📘", title: "Syllabus", sub: "Topics for every subject", go: function () { showSyllabus(); } },
+        { cls: "t5", icon: "📝", title: "Study Notes", sub: "Notes and flashcards", go: function () { showNotes(); } },
         { cls: "t5", icon: "📝", title: "Study Notes", sub: "Coming soon", go: soon },
-        { cls: "t6", icon: "🏆", title: "Leaderboard", sub: "Coming soon", go: soon }
+        { cls: "t6", icon: "🏆", title: "UTME Challenge", sub: "Compete and win prizes", go: function () { showChallengePick(); } }
       ];
       var grid = document.createElement("div");
       grid.className = "tiles";
@@ -654,12 +653,27 @@
       menu.appendChild(grid);
     }
 
+    // ===== CHEMISTRY NOTES (SAFE ADDITION) =====
+var chemNotes = {
+  "1. Separation of Mixtures and Purification": "This is a test note. We will replace it later.",
+  "2. Chemical Combination (Laws)": "This is a test note. We will replace it later.",
+  "3. Kinetic Theory and Gas Laws": "This is a test note. We will replace it later."
+};
     function soon() {
       alert("Coming soon. We are still building this.");
     }
     showMenu();
 setTimeout(function () { document.getElementById("splash").style.display = "none"; }, 2000);
-if ("serviceWorker" in navigator) { navigator.serviceWorker.register("Sw.js"); }
-  </script>
+  if ("serviceWorker" in navigator) { navigator.serviceWorker.register("Sw.js"); }
+</script>
+<script src="Study.js"></script>
+<script src="Syllabus.js"></script>
+<script src="Challenge.js"></script>
+<script src="Extras.js"></script>
+<script src="Notes_Chemistry_1.js"></script>
+<script src="Notes_Biology_1.js"></script>
+<script src="Notes_Biology_2.js"></script>
+<script src="Commerce_1.js"></script>
+<script src="Mock_Biology_2010.js"></script>
 </body>
 </html>
