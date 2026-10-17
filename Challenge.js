@@ -212,7 +212,7 @@ function showChallengePick() {
     CH.joinMinutes + " minutes after it, and only once. Your name, school and score will be recorded.</div>";
   html += "<p id='chCount' style='font-weight:bold;color:#c62828'></p>";
   html += "<input id='chName' placeholder='Your full name' style='" + box + "'>";
-  html += "<input id='chSchool' placeholder='Your school (optional)' style='" + box + "'>";
+  html += "<input id='chSchool' placeholder='Your phone number (required, for prizes)' style='" + box + "'>";
   html += "<p><b>Choose your 3 subjects</b> (English is compulsory)</p>";
   html += "<div class='subjGrid' id='chGrid'></div>";
   html += "<p id='chInfo'>Subjects chosen: 0 / 3</p>";
@@ -252,6 +252,7 @@ function startChallengePick() {
   var n = document.getElementById("chName").value.trim();
   var sc = document.getElementById("chSchool").value.trim();
   if (n === "") { alert("Please type your full name."); return; }
+    if (sc === "") { alert("Please type your phone number so we can reach you if you win."); return; }
   if (chPicked.length !== 3) { alert("Please choose exactly 3 subjects."); return; }
   savedName = n;
   chSchool = sc;
