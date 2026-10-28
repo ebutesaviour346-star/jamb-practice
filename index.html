@@ -6256,7 +6256,7 @@ body{max-width:1120px!important;padding:12px!important;background:linear-gradien
  sdX10School:['Teacher & School','Class assignments and teacher analytics are planned. They will require accounts and consent-based data handling.'],
  sdX10Offline:['Offline Learning','The bundled question bank can work without internet after opening this file. Some advanced online features are not available offline.']
  };
- function call(name){if(name==='external'){window.open('https://www.jamb.gov.ng/','_blank');return}if(typeof window[name]==='function'){window[name]();return}panel('Feature unavailable','This feature could not be opened in this version.')}
+ function call(name){if(name==='showLiveTutor' || name==='sdX10Tutor'){if(typeof window.showLiveTutor==='function'){window.showLiveTutor();return;} panel('AI Tutor unavailable','AI Tutor script did not load. Refresh the page.');return;}if(name==='external'){window.open('https://www.jamb.gov.ng/','_blank');return}if(typeof window[name]==='function'){window[name]();return}panel('Feature unavailable','This feature could not be opened in this version.')}
  function panel(title,body,button,action){
   const m=document.getElementById('menu');m.innerHTML='<div class="x-panel"><h2>'+title+'</h2><p>'+body+'</p><div id="x-extra"></div><button onclick="showMenu()">← Home</button></div>';m.style.display='block';m.className='sd-x10';
   if(button){let b=document.createElement('button');b.textContent=button;b.onclick=()=>call(action);m.querySelector('#x-extra').append(b)}
@@ -6283,9 +6283,9 @@ body{max-width:1120px!important;padding:12px!important;background:linear-gradien
   menu.className='sd-x10';menu.style.display='block';
   menu.innerHTML='<div class="x-head"><div class="x-brand">🎓 Study<em>Drill</em><i>X10</i></div><div class="x-tag">Practice. Learn. Build Skills. Stay Informed. Succeed.</div><div class="x-hero"><small>THE COMPLETE STUDENT LEARNING PLATFORM</small><h2>StudyDrill X10 — Learn Beyond Exams</h2><p>CBT practice, complete syllabus learning, digital skills, AI tutoring, opportunities, science tools and progress tracking — all in one place.</p><button class="x-start" id="x-start">Start Practicing →</button></div></div><div class="x-pills"><div class="x-pill">📚 13 Subject Options</div><div class="x-pill">✔️ Answer Explanations</div><div class="x-pill">📊 Track Progress</div><div class="x-pill">📶 Bundled Offline Bank</div></div><div id="x-groups"></div><section class="x-roadmap"><h2>🚀 StudyDrill X10 Vision</h2><p>A complete student learning platform combining exam preparation, digital skills, news, opportunities and community.</p><h3>Our mission</h3><p>Help every student practice, learn, explore and achieve with confidence.</p><h3>Roadmap to launch</h3><p>Phase 1: CBT, notes and AI tutor · Phase 2: News, scholarships and admissions · Phase 3: Digital skills and virtual labs · Phase 4: Learning DNA and progress tools · Phase 5: Community and school tools.</p><small>Some features are previews or require online services. Question counts and verification are not guaranteed.</small></section><div class="x-stats"><div><b>🎯</b><small>Practice Goals</small></div><div><b>📈</b><small>Progress Tracking</small></div><div><b>🏆</b><small>Study Milestones</small></div></div><nav class="x-nav"><button data-go="showMenu"><span>🏠</span>Home</button><button data-go="showSetup"><span>📝</span>Practice</button><button data-go="showNotes"><span>📖</span>Notes</button><button data-go="showLiveTutor"><span>🤖</span>Tutor</button><button data-go="showPerformance"><span>📊</span>Progress</button></nav>';
   const host=menu.querySelector('#x-groups');
-  groups.forEach(group=>{let h=document.createElement('div');h.className='x-title';h.textContent=group[0];host.append(h);let grid=document.createElement('div');grid.className='x-grid';group[1].forEach(a=>{let b=document.createElement('button');b.className='x-card '+a[3];b.innerHTML='<span class="x-emoji">'+a[0]+'</span><span class="x-info"><strong>'+a[1]+'</strong><small>'+a[2]+'</small></span>';b.onclick=()=>features[a[4]]?window.sdX10Open(a[4]):call(a[4]);grid.append(b)});host.append(grid)});
+  groups.forEach(group=>{let h=document.createElement('div');h.className='x-title';h.textContent=group[0];host.append(h);let grid=document.createElement('div');grid.className='x-grid';group[1].forEach(a=>{let b=document.createElement('button');b.className='x-card '+a[3];b.innerHTML='<span class="x-emoji">'+a[0]+'</span><span class="x-info"><strong>'+a[1]+'</strong><small>'+a[2]+'</small></span>';b.onclick=()=>{if(a[4]==='showLiveTutor'||a[4]==='sdX10Tutor'){call('showLiveTutor');return;}features[a[4]]?window.sdX10Open(a[4]):call(a[4]);};grid.append(b)});host.append(grid)});
   menu.querySelector('#x-start').onclick=()=>call('showSetup');
-  menu.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>features[b.dataset.go]?window.sdX10Open(b.dataset.go):call(b.dataset.go));
+  menu.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>call(b.dataset.go));
  };
  window.showMenu();
 })();
@@ -6299,7 +6299,7 @@ body{max-width:1120px!important;padding:12px!important;background:linear-gradien
 const API='https://studydrill-ai-tutor.ebutesaviour346.workers.dev/chat';
 const oldOpen=window.sdX10Open;
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function showLiveTutor(){
+window.showLiveTutor=function showLiveTutor(){
  const menu=document.getElementById('menu');if(!menu){alert('Tutor page unavailable');return;}
  menu.innerHTML='<div id="sd-live-tutor"><h2>🤖 StudyDrill X10 AI Tutor</h2><p class="sd-ai-status" id="sd-ai-status">Online AI tutor · Checking when you send a question</p><label for="sd-ai-subject">Subject</label> <select id="sd-ai-subject"><option>Biology</option><option>Physics</option><option>Chemistry</option><option>English</option><option>Mathematics</option><option>Economics</option><option>Government</option><option>Literature</option><option>Geography</option><option>Commerce</option><option>CRK</option><option>Computer Studies</option></select><div class="sd-ai-log" id="sd-ai-log" aria-live="polite"><div class="sd-ai-msg">Hello! Ask me a JAMB study question. I will send it to your Cloudflare Worker.</div></div><label for="sd-ai-question">Your question</label><textarea id="sd-ai-question" placeholder="Explain photosynthesis for JAMB students."></textarea><div><button id="sd-ai-send">Ask AI Tutor</button><button id="sd-ai-home">← Home</button></div></div>';
  document.getElementById('sd-ai-home').onclick=()=>window.showMenu();
@@ -6322,7 +6322,7 @@ async function ask(){
  }catch(e){add('Connection failed: '+e.message+'\n\nIf your Worker says “Origin not allowed”, allow your GitHub Pages origin (https://ebutesaviour346-star.github.io) in the Worker CORS configuration. If it says “Not found”, check the /chat route. A network/CORS error cannot be fixed by changing this HTML file alone.');status.textContent='AI connection failed · See error below';}
  finally{btn.disabled=false;}
 }
-window.sdX10Open=function(name){if(name==='sdX10Tutor')return showLiveTutor();return oldOpen.apply(this,arguments);};
+window.sdX10Open=function(name){if(name==='sdX10Tutor'||name==='showLiveTutor')return window.showLiveTutor();return oldOpen.apply(this,arguments);};
 window.sdTutorOpen=showLiveTutor;
 })();
 </script>
