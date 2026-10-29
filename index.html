@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<html lang="en">
 
 <head>
 <meta charset="utf-8"/>
@@ -3773,7 +3772,6 @@ addQ("CRK", [
       clearInterval(timerId);
       stopSpeak();
       recordRepeatProgress();
-      try { window.sdCaptureMistakes && window.sdCaptureMistakes(qs,subjects); } catch(err) { console.warn("Mistake tracking:",err); }
       closeModals();
       document.getElementById("exam").style.display = "none";
       scores = {};
@@ -6328,7 +6326,7 @@ window.sdTutorOpen=showLiveTutor;
 })();
 </script>
 <style>
-#sdmenu-btn{position:fixed;top:12px;left:12px;z-index:2147483000;background:#202020;color:white;border:1px solid #555;border-radius:10px;padding:9px 12px;font-size:25px;line-height:1;cursor:pointer}
+#sdmenu-btn{display:none;position:fixed;top:12px;left:12px;z-index:2147483000;background:#202020;color:white;border:1px solid #555;border-radius:10px;padding:9px 12px;font-size:25px;line-height:1;cursor:pointer}
 #sdmenu-backdrop{display:none;position:fixed;inset:0;background:#000a;z-index:2147483001}
 #sdmenu-panel{position:fixed;top:0;bottom:0;left:0;width:min(82vw,360px);background:#222;color:#eee;overflow:auto;box-shadow:5px 0 20px #0007;font-family:Arial,sans-serif}
 .sdmenu-hero{height:220px;background:linear-gradient(135deg,#d51365,#9b176d 25%,#3366a6 55%,#24a989 75%,#f4cc31);padding:90px 20px 16px;box-sizing:border-box}.sdmenu-avatar{height:76px;width:76px;border-radius:50%;background:#777;display:grid;place-items:center;font-size:40px}.sdmenu-user{margin-top:8px;font-size:22px}.sdmenu-edit{background:none;color:white;border:0;font-size:23px;cursor:pointer}
@@ -6557,7 +6555,32 @@ document.getElementById('sd-skill-done').onchange=function(){let d=getDone();if(
 #sd-skills-shell .sd-course-panel pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#162744;color:#f0f7ff;padding:13px;border-radius:9px;font-size:13px}
 #sd-skills-shell .sd-course-panel label{display:block;margin:12px 0;padding:10px;background:#f1f5fd;border-radius:9px}
 #sd-skills-shell .sd-course-panel textarea{width:100%;min-height:90px;box-sizing:border-box;border-radius:10px;border:1px solid #b5c8e4;padding:10px}
-</style><style>
+</style><script>
+(function(){
+const course=[
+{title:'Introduction to Web Design',goal:'Explain the difference between a website, a web page and a web designer.',lesson:`A website is a collection of related web pages. A web page is a document your browser displays. Web design focuses on how those pages are structured, look and behave. A useful website helps a visitor accomplish a goal, such as finding a service, reading a lesson or contacting a business.\n\nA typical project begins with a client brief: Who is the audience? What should visitors do? What information must appear? Sketch the layout before choosing colours. For your first project, plan a simple business homepage with a title, services, contact details and a clear button.`,example:'Example: A printing press website might have Home, Services, Prices and Contact sections. The main button could say “Request a Quote”.',task:'Write a five-line brief for a website you want to build: audience, goal, three sections, main action and visual style.',quiz:['What is the main purpose of a clear website goal?','To help visitors complete a useful action','To add as many colours as possible','To avoid writing content'],answer:0},
+{title:'How Websites Work',goal:'Describe the roles of browsers, hosting, domains and files.',lesson:`A browser reads website files and displays them. HTML provides the content and structure, CSS controls appearance, and JavaScript adds behaviour. A domain is a human-friendly address; hosting stores the files so visitors can reach them.\n\nWhen someone opens a web address, the browser requests the page from a server. The server responds with files, and the browser renders them. Static websites can be published using GitHub Pages. For a beginner, first build and test files locally, then publish them.`,example:'Example: index.html is commonly the first file loaded when a visitor opens a static website.',task:'Identify a domain name, a hosting service, and the browser on your phone. Explain each role in one sentence.',quiz:['Which technology controls the visual style of a page?','HTML','CSS','Domain name'],answer:1},
+{title:'HTML Fundamentals',goal:'Create a page with headings, paragraphs, lists and links.',lesson:`HTML uses elements to organise content. A heading introduces a section, a paragraph holds text, and a link points to another location. Elements commonly have opening and closing tags. Write valid nesting and meaningful headings.\n\nCreate a new file called index.html in Acode. Paste the example, save it, and open its preview. Change the heading and paragraph to describe your own project.`,example:`<!doctype html>\n<html lang="en">\n<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>My Site</title></head>\n<body>\n<h1>Welcome to My Site</h1>\n<p>I build useful websites.</p>\n<a href="https://example.com">Visit an example</a>\n</body></html>`,task:'Build a page with one heading, two paragraphs, a three-item list and one link.',quiz:['Which HTML element is usually the main page heading?','<p>','<h1>','<a>'],answer:1},
+{title:'CSS and Styling',goal:'Use CSS to style typography, spacing and backgrounds.',lesson:`CSS rules select elements and assign properties. Colour sets text or background appearance, padding adds space inside an element, and margin adds space outside. Consistent spacing and readable contrast make a site easier to use.\n\nAdd a style block inside the head of your HTML document. Start with one font, a limited colour palette and comfortable line spacing. Avoid tiny text and overly decorative backgrounds.`,example:`<style>\nbody { font-family: Arial, sans-serif; max-width: 720px; margin: auto; padding: 20px; line-height: 1.6; }\nh1 { color: #153c78; }\na { display: inline-block; padding: 12px; background: #153c78; color: white; border-radius: 8px; }\n</style>`,task:'Style your page with a background colour, a readable heading and a button-like link.',quiz:['Which CSS property adds space inside a box?','padding','margin','display'],answer:0},
+{title:'Responsive Web Design',goal:'Make a layout comfortable on narrow and wide screens.',lesson:`Responsive design adapts to different screen sizes. Start with a mobile-first layout: content in a single column, readable text and large touch targets. Then use media queries to add columns on larger screens.\n\nUse the viewport meta tag in your HTML head. Test your page in portrait mode and landscape mode. Check that text does not overflow and that buttons can be tapped easily.`,example:`<style>\n.cards { display: grid; grid-template-columns: 1fr; gap: 12px; }\n@media (min-width: 700px) { .cards { grid-template-columns: repeat(2, 1fr); } }\n</style>`,task:'Create two service cards that stack on a phone and sit side by side on a wider screen.',quiz:['What is a mobile-first design approach?','Design for phones first, then enhance larger screens','Hide content on phones','Use fixed 1200px width'],answer:0},
+{title:'JavaScript Basics',goal:'Use a click event to change page content.',lesson:`JavaScript adds interaction. You can select an element, listen for an event and update its text. A click event happens when someone taps a button. Keep scripts simple and test each change.\n\nPlace your script after the HTML elements it uses, near the end of the body. Avoid using JavaScript for tasks that plain HTML can handle.`,example:`<button id="hello">Tap me</button>\n<p id="message">Waiting...</p>\n<script>\ndocument.getElementById('hello').addEventListener('click', function () {\n  document.getElementById('message').textContent = 'Welcome!';\n});\n<\/script>`,task:'Make a button that changes a paragraph to “Thanks for visiting” when tapped.',quiz:['What happens when a click event handler runs?','The browser deletes the page','Code responds to a user tap','CSS stops working'],answer:1},
+{title:'Build Your First Website',goal:'Combine structure, styling and interaction in a practical project.',lesson:`Build a three-section website for a small business or study service. Include a heading, a short description, a services list and a contact section. Add responsive styling and one working interactive button.\n\nTest your project on your phone. Confirm every link works, buttons respond, text is readable and no horizontal scrolling appears. Ask one person to try it without guidance and note what confused them.`,example:'Suggested sections: Hero (“What we do”), Services (three cards), Contact (email or WhatsApp link).',task:'Create and save a working index.html for your chosen business. Test all links and buttons and record three improvements.',quiz:['Which is the strongest proof of learning web design?','A working, tested website','A list of software names','A promise to learn later'],answer:0},
+{title:'Final Project and Assessment',goal:'Finish a portfolio-ready website and plan your next learning steps.',lesson:`Polish your website: fix broken links, check spelling, ensure colour contrast, make buttons easy to tap and verify the mobile layout. Publish a static project with GitHub Pages when ready. Clearly label it as a demonstration if it is not a real client project.\n\nTo look for your first client, show a relevant sample, define what is included, agree a price and timeline, and explain who handles hosting and future maintenance. Do not promise results you cannot verify.`,example:'Portfolio entry: “Demo website for a local printing shop — responsive homepage, services section and contact link.”',task:'Publish or locally present your final project, collect feedback and write a five-point improvement checklist.',quiz:['Before delivering a website to a client, you should:','Agree scope, test it and clarify maintenance','Ignore mobile users','Promise guaranteed sales'],answer:0}
+];
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const key='sd_webdesign_course_v1';
+function state(){try{return JSON.parse(localStorage.getItem(key))||{}}catch(e){return {}}}
+function save(s){localStorage.setItem(key,JSON.stringify(s))}
+function draw(html){let m=document.getElementById('menu');if(!m)return;m.style.display='block';m.innerHTML='<div id="sd-skills-shell">'+html+'</div>';let ex=document.getElementById('exam');if(ex)ex.style.display='none';window.scrollTo(0,0)}
+window.sdWebDesignCourse=function(){let s=state(),done=course.filter((_,i)=>s[i]&&s[i].done).length;draw('<button class="sd-nav" onclick="sdSkillsSection(2)">← Intermediate Skills</button><h2>🌐 Web Design Course</h2><p>Eight practical lessons • Learn using Acode on your phone • Your progress is saved on this device.</p><div class="sd-progress-track"><div class="sd-progress-fill" style="width:'+(100*done/course.length)+'%"></div></div><p><b>'+done+' / 8 lessons completed</b></p>'+course.map((l,i)=>'<button class="sd-course-card" onclick="sdWebDesignLesson('+i+')"><b>'+(s[i]&&s[i].done?'✅ ':'📘 ')+'Lesson '+(i+1)+': '+esc(l.title)+'</b><small>'+esc(l.goal)+'</small></button>').join('')+'<button class="sd-nav" onclick="sdSkillsHome()">All 9 sections</button>')};
+window.sdWebDesignLesson=function(i){let l=course[i],s=state(),d=s[i]||{},opts=l.quiz.slice(1),content='<button class="sd-nav" onclick="sdWebDesignCourse()">← Web Design Course</button><h2>Lesson '+(i+1)+': '+esc(l.title)+'</h2><div class="sd-course-panel"><b>Learning objective</b><p>'+esc(l.goal)+'</p></div><div class="sd-course-panel"><h3>Learn</h3>'+l.lesson.split(/\n\n/).map(t=>'<p>'+esc(t)+'</p>').join('')+'</div><div class="sd-course-panel"><h3>Worked example</h3>'+(l.example.includes('<')?'<pre>'+esc(l.example)+'</pre>':'<p>'+esc(l.example)+'</p>')+'</div><div class="sd-course-panel"><h3>Practical assignment</h3><p>'+esc(l.task)+'</p><label for="sd-web-notes">Your work / reflection</label><textarea id="sd-web-notes" placeholder="Describe what you built or learned...">'+esc(d.notes||'')+'</textarea><button class="sd-nav" onclick="sdWebSaveNotes('+i+')">Save my work</button></div><div class="sd-course-panel"><h3>Quick quiz</h3><p>'+esc(l.quiz[0])+'</p>'+opts.map((o,j)=>'<label><input type="radio" name="sd-web-answer" value="'+j+'" '+(d.choice===j?'checked':'')+'> '+esc(o)+'</label>').join('')+'<button class="sd-nav" onclick="sdWebCheck('+i+')">Check answer</button><p id="sd-web-feedback">'+(d.passed?'✅ Quiz passed':'')+'</p></div><div class="sd-course-panel"><p>'+(d.done?'✅ Lesson completed':'Complete the assignment and pass the quiz to finish this lesson.')+'</p><button class="sd-nav" onclick="sdWebComplete('+i+')">Mark lesson complete</button></div>'+(i<7?'<button class="sd-nav" onclick="sdWebDesignLesson('+(i+1)+')">Next lesson →</button>':'<button class="sd-nav" onclick="sdWebDesignCourse()">View course progress</button>');draw(content)};
+window.sdWebSaveNotes=function(i){let s=state();s[i]=s[i]||{};s[i].notes=document.getElementById('sd-web-notes').value.trim();save(s);alert('Your assignment notes were saved on this device.')};
+window.sdWebCheck=function(i){let checked=document.querySelector('input[name="sd-web-answer"]:checked');if(!checked)return alert('Select an answer.');let s=state();s[i]=s[i]||{};s[i].choice=Number(checked.value);s[i].passed=s[i].choice===course[i].answer;save(s);document.getElementById('sd-web-feedback').textContent=s[i].passed?'✅ Correct! You passed this quiz.':'Not quite. Review the lesson and try again.'};
+window.sdWebComplete=function(i){let s=state(),d=s[i]||{},notes=document.getElementById('sd-web-notes').value.trim();if(!notes)return alert('Write what you completed in the assignment box and save it first.');if(!d.passed)return alert('Pass the lesson quiz first.');d.notes=notes;d.done=true;s[i]=d;save(s);sdWebDesignLesson(i)};
+const prev=window.sdSkillsLesson;
+window.sdSkillsLesson=function(section,index){if(Number(section)===2&&Number(index)===0)return sdWebDesignCourse();return prev.apply(this,arguments)};
+})();
+</script><style>
 #sd-skills-shell .sd-course-stat{background:#e7efff;padding:14px;border-radius:12px;margin:10px 0}
 #sd-skills-shell .sd-course-panel p{line-height:1.7}
 #sd-skills-shell .sd-course-card small{display:block;color:#465b79}
@@ -6625,18 +6648,27 @@ function update(section,index,i,change){let name=groups[section][index],all=read
 window.sdGenericSave=function(s,x,i){update(s,x,i,{notes:document.getElementById('sd-generic-work').value.trim()});alert('Your work was saved on this device.')};
 window.sdGenericCheck=function(s,x,i){let c=document.querySelector('input[name="sd-generic-answer"]:checked');if(!c)return alert('Select an answer.');let correct=+c.value===make(groups[s][x])[i].a;update(s,x,i,{choice:+c.value,passed:correct});document.getElementById('sd-generic-feedback').textContent=correct?'✅ Correct!':'Not quite. Review the lesson and try again.'};
 window.sdGenericComplete=function(s,x,i){let name=groups[s][x],all=read(),d=(all[name]||{})[i]||{},notes=document.getElementById('sd-generic-work').value.trim();if(notes.length<12)return alert('Describe the practical assignment in at least 12 characters.');if(!d.passed)return alert('Pass the knowledge check first.');update(s,x,i,{notes,done:true});sdGenericLesson(s,x,i)};
-// Profile hamburger is visible on the actual homepage only.
-const btn=document.getElementById('sdmenu-btn'),menu=document.getElementById('menu');
-if(btn&&menu){
- let home=false;
- const previousShowMenu=window.showMenu;
- window.showMenu=function(){let result=previousShowMenu.apply(this,arguments);home=true;sync();return result};
- function sync(){let main=menu.style.display!=='none'&&!menu.querySelector('#sd-skills-shell')&&!!menu.querySelector('.t1, .home-tile, .feature-card, .tile');btn.style.display=home&&main?'block':'none';if(btn.style.display==='none'&&typeof window.sdMenuClose==='function')window.sdMenuClose()}
- const obs=new MutationObserver(()=>{if(menu.querySelector('#sd-skills-shell'))home=false;else if(menu.querySelector('.t1, .home-tile, .feature-card, .tile'))home=true;sync()});obs.observe(menu,{childList:true,subtree:false,attributes:true,attributeFilter:['style']});
- document.addEventListener('click',function(e){if(e.target.closest('#sdmenu-btn,#sdmenu-backdrop'))return;setTimeout(sync,0)},true);
- sync();
+// Show the profile button only when the real X10 home tiles are visible.
+const profileButton=document.getElementById('sdmenu-btn');
+const mainMenu=document.getElementById('menu');
+if(profileButton&&mainMenu){
+  function updateProfileVisibility(){
+    const homeMarkup=!!mainMenu.querySelector('.x-head') && !!mainMenu.querySelector('#x-groups');
+    const menuVisible=getComputedStyle(mainMenu).display!=='none';
+    const homeVisible=homeMarkup && menuVisible && !!mainMenu.querySelector('.x-nav');
+    profileButton.style.setProperty('display',homeVisible?'block':'none','important');
+    if(!homeVisible && typeof window.sdMenuClose==='function')window.sdMenuClose();
+  }
+  // The X10 home screen is drawn after navigation. Observe its content too.
+  new MutationObserver(updateProfileVisibility).observe(mainMenu,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
+  const oldShowMenu=window.showMenu;
+  if(typeof oldShowMenu==='function'){
+    window.showMenu=function(){const r=oldShowMenu.apply(this,arguments);updateProfileVisibility();return r;};
+  }
+  window.addEventListener('pageshow',updateProfileVisibility);
+  document.addEventListener('click',()=>requestAnimationFrame(updateProfileVisibility),true);
+  updateProfileVisibility();
 }
+
 })();
 </script>
-</body>
-</html>
